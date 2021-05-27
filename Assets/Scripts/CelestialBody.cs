@@ -5,10 +5,10 @@ using UnityEngine;
 public class CelestialBody : MonoBehaviour
 {
     [SerializeField] float sma = 15; //semi major axis
-    [SerializeField] float ecc; // eccentricity
-    [SerializeField] float incl; // inclination
-    [SerializeField] float longitudeOfAcendingNode;  //n - swivel
-    [SerializeField] float argumentOfPeriapsis;      //w - position
+    [SerializeField] [Range(0f, 0.99f)] float ecc; // eccentricity
+    [SerializeField] [Range(0f, Helpers.tau)] float incl; // inclination
+    [SerializeField] [Range(0f, Helpers.tau)] float longitudeOfAcendingNode;  //n - swivel
+    [SerializeField] [Range(0f, Helpers.tau)] float argumentOfPeriapsis;      //w - position
     [SerializeField] float meanLongitude;             //L - offset
     [SerializeField] RefBody refBody;
     [SerializeField] float meanAnomaly;

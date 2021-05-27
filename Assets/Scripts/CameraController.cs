@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class CameraController : MonoBehaviour
 {
@@ -10,15 +11,21 @@ public class CameraController : MonoBehaviour
     private float totalRun = 1.0f;
 
     public float followSharpness = 0.1f;
+    public Text followText;
 
     bool follow;
     public Transform target;
     Vector3 _followOffset;
 
+    void Awake()
+    {
+        followText.enabled = false;
+    }
+
     void Update()
     {
         //Keyboard commands
-        float f = 0.0f;
+        // float f = 0.0f;
         Vector3 p = GetBaseInput();
         if (p.sqrMagnitude > 0)
         { // only move while a direction key is pressed
@@ -63,63 +70,111 @@ public class CameraController : MonoBehaviour
     private Vector3 GetBaseInput()
     { //returns the basic values, if it's 0 than it's not active.
         Vector3 p_Velocity = new Vector3();
-        if (Input.GetKey(KeyCode.W))
+        if (follow)
         {
-            p_Velocity += new Vector3(0, 1, 0);
-        }
-        if (Input.GetKey(KeyCode.S))
-        {
-            p_Velocity += new Vector3(0, -1, 0);
-        }
-        if (Input.GetKey(KeyCode.A))
-        {
-            p_Velocity += new Vector3(-1, 0, 0);
-        }
-        if (Input.GetKey(KeyCode.D))
-        {
-            p_Velocity += new Vector3(1, 0, 0);
-        }
-        if(Input.GetAxisRaw("Mouse ScrollWheel") > 0)
-        {
-            if (Vector3.Distance(target.position, transform.position) > 100)
+            if (Input.GetKey(KeyCode.W))
             {
-                p_Velocity += new Vector3(0, 0, 50);
+                p_Velocity += new Vector3(0, 0.01f, 0);
             }
-            else
+            if (Input.GetKey(KeyCode.S))
             {
-                p_Velocity += new Vector3(0, 0, 5);
+                p_Velocity += new Vector3(0, -0.01f, 0);
             }
+            if (Input.GetKey(KeyCode.A))
+            {
+                p_Velocity += new Vector3(-0.01f, 0, 0);
+            }
+            if (Input.GetKey(KeyCode.D))
+            {
+                p_Velocity += new Vector3(0.01f, 0, 0);
+            }
+            if (Input.GetAxisRaw("Mouse ScrollWheel") > 0)
+            {
+                if (Vector3.Distance(target.position, transform.position) > 100)
+                {
+                    p_Velocity += new Vector3(0, 0, 0.5f);
+                }
+                else
+                {
+                    p_Velocity += new Vector3(0, 0, 0.05f);
+                }
+            }
+            if (Input.GetAxisRaw("Mouse ScrollWheel") < 0)
+            {
+                if (Vector3.Distance(target.position, transform.position) > 100)
+                {
+                    p_Velocity += new Vector3(0, 0, -0.5f);
+                }
+                else
+                {
+                    p_Velocity += new Vector3(0, 0, -0.05f);
+                }
+            }
+
+            _followOffset += p_Velocity;
         }
-        if(Input.GetAxisRaw("Mouse ScrollWheel") < 0)
+        else
         {
-            if (Vector3.Distance(target.position, transform.position) > 100)
+
+            if (Input.GetKey(KeyCode.W))
             {
-                p_Velocity += new Vector3(0, 0, -50);
+                p_Velocity += new Vector3(0, 1, 0);
             }
-            else
+            if (Input.GetKey(KeyCode.S))
             {
-                p_Velocity += new Vector3(0, 0, -5);
+                p_Velocity += new Vector3(0, -1, 0);
             }
-        }
-        if (Input.GetMouseButtonDown(0))
-        {
-            var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
-            if(Physics.Raycast(ray, out hit))
+            if (Input.GetKey(KeyCode.A))
             {
-                target = hit.transform;
+                p_Velocity += new Vector3(-1, 0, 0);
             }
-        }
-        if (Input.GetKeyDown(KeyCode.E))
-        {
-            Debug.Log(Vector3.Distance(target.position, transform.position));
+            if (Input.GetKey(KeyCode.D))
+            {
+                p_Velocity += new Vector3(1, 0, 0);
+            }
+            if (Input.GetAxisRaw("Mouse ScrollWheel") > 0)
+            {
+                if (Vector3.Distance(target.position, transform.position) > 100)
+                {
+                    p_Velocity += new Vector3(0, 0, 50);
+                }
+                else
+                {
+                    p_Velocity += new Vector3(0, 0, 5);
+                }
+            }
+            if (Input.GetAxisRaw("Mouse ScrollWheel") < 0)
+            {
+                if (Vector3.Distance(target.position, transform.position) > 100)
+                {
+                    p_Velocity += new Vector3(0, 0, -50);
+                }
+                else
+                {
+                    p_Velocity += new Vector3(0, 0, -5);
+                }
+            }
+            if (Input.GetMouseButtonDown(0))
+            {
+                var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                RaycastHit hit;
+                if (Physics.Raycast(ray, out hit))
+                {
+                    target = hit.transform;
+                }
+            }
+            if (Input.GetKeyDown(KeyCode.E))
+            {
+                Debug.Log(Vector3.Distance(target.position, transform.position));
+            }
         }
         if (Input.GetKeyDown(KeyCode.Backspace))
         {
             follow = !follow;
             _followOffset = transform.position - target.position;
 
-
+            followText.enabled = follow;
+            
         }
         return p_Velocity;
     }
