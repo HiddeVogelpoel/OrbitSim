@@ -9,7 +9,11 @@ public class CameraController : MonoBehaviour
     private Vector3 lastMouse = new Vector3(255, 255, 255); //kind of in the middle of the screen, rather than at the top (play)
     private float totalRun = 1.0f;
 
+    public float followSharpness = 0.1f;
+
+    bool follow;
     public Transform target;
+    Vector3 _followOffset;
 
     void Update()
     {
@@ -18,8 +22,9 @@ public class CameraController : MonoBehaviour
         Vector3 p = GetBaseInput();
         if (p.sqrMagnitude > 0)
         { // only move while a direction key is pressed
-            totalRun = Mathf.Clamp(totalRun * 0.5f, 1f, 1000f);
-            p = p * mainSpeed;
+       
+                totalRun = Mathf.Clamp(totalRun * 0.5f, 1f, 1000f);
+                p = p * mainSpeed;
 
             p = p * Time.deltaTime;
             Vector3 newPosition = transform.position;
@@ -37,6 +42,22 @@ public class CameraController : MonoBehaviour
         }
 
         transform.LookAt(target);
+    }
+
+    void LateUpdate()
+    {
+        if (follow)
+        {
+
+            // Apply that offset to get a target position.
+            Vector3 targetPosition = target.position + _followOffset;
+
+            // Keep our y position unchanged.
+            targetPosition.y = transform.position.y;
+
+            // Smooth follow.    
+            transform.position += (targetPosition - transform.position) * followSharpness;
+        }
     }
 
     private Vector3 GetBaseInput()
@@ -60,11 +81,25 @@ public class CameraController : MonoBehaviour
         }
         if(Input.GetAxisRaw("Mouse ScrollWheel") > 0)
         {
-            p_Velocity += new Vector3(0, 0, 5);
+            if (Vector3.Distance(target.position, transform.position) > 100)
+            {
+                p_Velocity += new Vector3(0, 0, 50);
+            }
+            else
+            {
+                p_Velocity += new Vector3(0, 0, 5);
+            }
         }
         if(Input.GetAxisRaw("Mouse ScrollWheel") < 0)
         {
-            p_Velocity += new Vector3(0, 0, -5);
+            if (Vector3.Distance(target.position, transform.position) > 100)
+            {
+                p_Velocity += new Vector3(0, 0, -50);
+            }
+            else
+            {
+                p_Velocity += new Vector3(0, 0, -5);
+            }
         }
         if (Input.GetMouseButtonDown(0))
         {
@@ -74,6 +109,17 @@ public class CameraController : MonoBehaviour
             {
                 target = hit.transform;
             }
+        }
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            Debug.Log(Vector3.Distance(target.position, transform.position));
+        }
+        if (Input.GetKeyDown(KeyCode.Backspace))
+        {
+            follow = !follow;
+            _followOffset = transform.position - target.position;
+
+
         }
         return p_Velocity;
     }
