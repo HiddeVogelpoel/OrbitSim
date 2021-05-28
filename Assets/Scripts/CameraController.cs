@@ -12,14 +12,19 @@ public class CameraController : MonoBehaviour
 
     public float followSharpness = 0.1f;
     public Text followText;
+    public Text planetText;
 
     bool follow;
-    public Transform target;
+    private Transform target;
+    public Transform defaultTarget;
     Vector3 _followOffset;
 
     void Awake()
     {
         followText.enabled = false;
+        planetText.enabled = false;
+
+        target = defaultTarget;
     }
 
     void Update()
@@ -161,7 +166,15 @@ public class CameraController : MonoBehaviour
                 if (Physics.Raycast(ray, out hit))
                 {
                     target = hit.transform;
+
+                    planetText.text = "Selected body: " + target.name;
+                    planetText.enabled = true;
                 }
+            }
+            if (Input.GetMouseButtonDown(1))
+            {
+                target = defaultTarget;
+                planetText.text = "Selected body: " + target.name;
             }
             if (Input.GetKeyDown(KeyCode.E))
             {
